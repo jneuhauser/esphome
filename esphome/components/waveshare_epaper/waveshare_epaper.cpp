@@ -1993,6 +1993,110 @@ void WaveshareEPaper4P2InBV2::dump_config() {
   LOG_UPDATE_INTERVAL(this);
 }
 
+// ========================================================
+//               5.65inch e-Paper (F)
+// Links:
+//  - https://www.waveshare.com/wiki/5.65inch_e-Paper_Module_(F)_Manual
+//  - https://github.com/waveshareteam/e-Paper/tree/master/Arduino/epd5in65f
+// ========================================================
+void WaveshareEPaper5P65InF::initialize() {
+  this->reset_();
+  this->wait_until_idle_();
+
+  // COMMAND PANEL SETTING
+  this->command(0x00);
+  this->data(0xEF);
+  this->data(0x08);
+
+  // COMMAND POWER SETTING
+  this->command(0x01);
+  this->data(0x37);
+  this->data(0x00);
+  this->data(0x23);
+  this->data(0x23);
+
+  // COMMAND POWER OFF SEQUENCE SETTING
+  this->command(0x03);
+  this->data(0x00);
+
+  // COMMAND BOOSTER SOFT START
+  this->command(0x06);
+  this->data(0xC7);
+  this->data(0xC7);
+  this->data(0x1D);
+
+  // COMMAND PLL CONTROL
+  this->command(0x30);
+  this->data(0x3C);
+
+  // COMMAND TEMPERATURE SENSOR CALIBRATION
+  this->command(0x41);
+  this->data(0x00);
+
+  // COMMAND VCOM AND DATA INTERVAL SETTING
+  this->command(0x50);
+  this->data(0x37);
+
+  // COMMAND TCON SETTING
+  this->command(0x60);
+  this->data(0x22);
+
+  // COMMAND RESOLUTION SETTING
+  this->command(0x61);
+  this->data(0x02);
+  this->data(0x58);
+  this->data(0x01);
+  this->data(0xC0);
+
+  // ???
+  this->command(0xE3);
+  this->data(0xAA);
+
+  delay(100);
+
+  // COMMAND VCOM AND DATA INTERVAL SETTING
+  this->command(0x50);
+  this->data(0x37);
+}
+void HOT WaveshareEPaper5P65InF::display() {
+  // COMMAND RESOLUTION SETTING
+  this->command(0x61);
+  this->data(0x02);
+  this->data(0x58);
+  this->data(0x01);
+  this->data(0xC0);
+
+  // COMMAND DATA START TRANSMISSION 1
+  this->command(0x10);
+  this->start_data_();
+  this->write_array(this->buffer_, this->get_buffer_length_());
+  this->end_data_();
+
+  // COMMAND POWER ON
+  this->command(0x04);
+  this->wait_until_idle_();
+
+  // COMMAND DISPLAY REFRESH
+  this->command(0x12);
+  this->wait_until_idle_();
+
+  // COMMAND POWER OFF
+  this->command(0x02);
+  this->wait_until_idle_();
+
+  delay(200);
+}
+int WaveshareEPaper5P65InF::get_width_internal() { return 600; }
+int WaveshareEPaper5P65InF::get_height_internal() { return 448; }
+void WaveshareEPaper5P65InF::dump_config() {
+  LOG_DISPLAY("", "Waveshare E-Paper", this);
+  ESP_LOGCONFIG(TAG, "  Model: 5.65inch e-Paper (F)");
+  LOG_PIN("  Reset Pin: ", this->reset_pin_);
+  LOG_PIN("  DC Pin: ", this->dc_pin_);
+  LOG_PIN("  Busy Pin: ", this->busy_pin_);
+  LOG_UPDATE_INTERVAL(this);
+}
+
 void WaveshareEPaper5P8In::initialize() {
   // COMMAND POWER SETTING
   this->command(0x01);
